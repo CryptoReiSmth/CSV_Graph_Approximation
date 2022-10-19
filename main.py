@@ -8,8 +8,6 @@ import numpy as np
 class CsvGraph (QDialog):
     def __init__(self, file_path: str, degree: int):
         super(QDialog, self).__init__()
-        self.dragPoint = None
-        self.dragOffset = None
         self.setGeometry(150, 100, 1000, 750)
         # Create cool window
         self.graphWidget = pg.PlotWidget()
