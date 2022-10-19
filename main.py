@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QDialog, QHBoxLayout
 import numpy as np
 
 class CsvGraph (QDialog):
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, degree: int):
         super(QDialog, self).__init__()
         self.dragPoint = None
         self.dragOffset = None
@@ -25,7 +25,6 @@ class CsvGraph (QDialog):
         # Graphic data
         self.y = []
         self.x = []
-        degree = 2
 
         # Read data from csv-file
         with open(file_path, newline='') as csvfile:
@@ -49,6 +48,6 @@ class CsvGraph (QDialog):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    w = CsvGraph("check.csv")
+    w = CsvGraph("check.csv", 2)
     w.show()
     sys.exit(app.exec_())
