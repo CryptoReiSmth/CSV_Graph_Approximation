@@ -1,12 +1,12 @@
 import sys
 import csv
 import pyqtgraph as pg
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QCheckBox, QDialog, QVBoxLayout, QHBoxLayout
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QDialog, QHBoxLayout
 import numpy as np
 
 class CsvGraph (QDialog):
-    def __init__(self, filename: str):
+    def __init__(self, file_path: str):
         super(QDialog, self).__init__()
         self.dragPoint = None
         self.dragOffset = None
@@ -28,7 +28,7 @@ class CsvGraph (QDialog):
         degree = 2
 
         # Read data from csv-file
-        with open(r'C:\Users\redko\Desktop\check.csv', newline='') as csvfile:
+        with open(file_path, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             for row in reader:      #TODO: добавить обработку заголовка
                 self.y.append(int(row[0]))
