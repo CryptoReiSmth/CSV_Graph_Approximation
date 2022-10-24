@@ -27,12 +27,11 @@ class CsvGraph (QDialog):
         self.degree = 2
 
         # Read data from csv-file
-        #TODO: read couple of values
         with open(file_path, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             for row in reader:      #TODO: add header handling
-                self.y.append(int(row[0]))
-        self.x = [i for i in range (len(self.y))]
+                self.x.append(int(row[0].split(";")[0]))
+                self.y.append(int(row[0].split(";")[1]))
 
         # Add points from csv-file
         self.scatter = pg.ScatterPlotItem(size=7, brush=pg.mkBrush(color="blue"))
