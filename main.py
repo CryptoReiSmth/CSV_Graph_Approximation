@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, 
 from PyQt5.QtCore import Qt
 import numpy as np
 
-
 class CsvGraph (QDialog):
     def __init__(self, file_path: str):
         super(QDialog, self).__init__()
