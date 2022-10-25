@@ -6,6 +6,10 @@ from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, 
 from PyQt5.QtCore import Qt
 import numpy as np
 
+def sign(n):
+  if n < 0: return " "
+  else: return " +"
+
 class CsvGraph (QDialog):
     def __init__(self, file_path: str):
         super(QDialog, self).__init__()
@@ -39,8 +43,18 @@ class CsvGraph (QDialog):
         self.graphWidget.addItem(self.scatter)
 
         # Draw approximate line
-        self.approximate_y = np.polyval(np.polyfit(self.x, self.y, self.degree), self.x)
+        self.line_coefficients = np.polyfit(self.x, self.y, self.degree)
+        self.approximate_y = np.polyval(self.line_coefficients, self.x)
         self.approximate_line = self.graphWidget.plot(self.x, self.approximate_y, pen = pg.mkPen(color =  "red"), symbol='+', symbolSize=5, symbolBrush="red")
+
+        # Show line equation
+        self.approximate_line_equation = "    Уравнение линии аппроксимации:  "
+        for degree in range(len(self.line_coefficients) - 1, 0, -1):
+            self.approximate_line_equation += '%.4f' % self.line_coefficients[degree]
+            self.approximate_line_equation += f" x^{degree}"
+            self.approximate_line_equation += sign(float(self.line_coefficients[degree - 1]))
+        self.approximate_line_equation += '%.4f' % self.line_coefficients[0]
+        self.equation_label = QLabel(self.approximate_line_equation)
 
         # Add slider
         self.sld = QSlider(Qt.Horizontal, self)
@@ -48,7 +62,7 @@ class CsvGraph (QDialog):
         self.sld.setRange(2, 6)
         self.sld.setTickInterval(1)
         self.sld.valueChanged.connect(self.slider_value_change)
-        self.text_degree = QLabel(f"Степень полинома: {self.degree}")
+        self.degree_label = QLabel(f"Степень полинома: {self.degree}")
 
 
         # Add values table
@@ -68,10 +82,12 @@ class CsvGraph (QDialog):
         layout_v1 = QVBoxLayout()
         layout_v2 = QVBoxLayout()
         sub_layout_h = QHBoxLayout()
+        sub_layout_h.setAlignment(Qt.AlignRight)
         layout_v1.addWidget(self.graphWidget)
         layout_v2.addWidget(self.data_table)
-        sub_layout_h.addWidget(self.sld, 3)
-        sub_layout_h.addWidget(self.text_degree, 7)
+        sub_layout_h.addWidget(self.sld, 2)
+        sub_layout_h.addWidget(self.degree_label, 1)
+        sub_layout_h.addWidget(self.equation_label, 7)
         layout_v1.addLayout(sub_layout_h)
         layout_h.addLayout(layout_v1, 9)
         layout_h.addLayout(layout_v2, 1)
@@ -79,11 +95,23 @@ class CsvGraph (QDialog):
 
     def slider_value_change(self, value):
         self.degree = value
-        self.text_degree.setText(f"Степень полинома: {self.degree}")
+        self.degree_label.setText(f"Степень полинома: {self.degree}")
+        self.line_coefficients = np.polyfit(self.x, self.y, self.degree)
         self.update_approximate_line()
+        self.update_approximate_line_equation()
+
+    def update_approximate_line_equation(self):
+        self.approximate_line_equation = "    Уравнение линии аппроксимации:  "
+        for degree in range(len(self.line_coefficients) - 1, 0, -1):
+            self.approximate_line_equation += '%.4f' % self.line_coefficients[degree]
+            self.approximate_line_equation += f" x^{degree}"
+            self.approximate_line_equation += sign(float(self.line_coefficients[degree - 1]))
+        self.approximate_line_equation += '%.4f' % self.line_coefficients[0]
+        self.equation_label.setText(self.approximate_line_equation)
+
 
     def update_approximate_line(self):
-        self.approximate_y = np.polyval(np.polyfit(self.x, self.y, self.degree), self.x)
+        self.approximate_y = np.polyval(self.line_coefficients, self.x)
         self.approximate_line.setData(self.x, self.approximate_y)
 
 
