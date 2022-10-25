@@ -2,7 +2,7 @@ import sys
 import csv
 import pyqtgraph as pg
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QLineEdit
+from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt
 import numpy as np
 
@@ -50,21 +50,31 @@ class CsvGraph (QDialog):
         self.sld.valueChanged.connect(self.slider_value_change)
         self.text_degree = QLabel(f"Степень полинома: {self.degree}")
 
-        # Add data input
-        self.line_edits = []
-        for item in self.y:
-            self.line_edits.append(QLineEdit(str(item), self))
 
         # Add values table
-            #TODO: table
+        self.data_table = QTableWidget()
+        self.data_table.setRowCount(len(self.x))
+        self.data_table.setColumnCount(2)
+        self.data_table.setHorizontalHeaderLabels(["x", "y"])
+        self.data_table.verticalHeader().setVisible(False)
+        self.data_table.resizeColumnsToContents()
+        for i in range(len(self.x)):
+            self.data_table.setItem(i, 0, QTableWidgetItem(str(self.x[i])))
+            self.data_table.setItem(i, 1, QTableWidgetItem(str(self.y[i])))
+
 
         # Set layout
         layout_h = QHBoxLayout()
-        layout_v = QVBoxLayout()
-        layout_v.addWidget(self.graphWidget)
-        layout_v.addWidget(self.sld)
-        layout_v.addWidget(self.text_degree)
-        layout_h.addLayout(layout_v)
+        layout_v1 = QVBoxLayout()
+        layout_v2 = QVBoxLayout()
+        sub_layout_h = QHBoxLayout()
+        layout_v1.addWidget(self.graphWidget)
+        layout_v2.addWidget(self.data_table)
+        sub_layout_h.addWidget(self.sld, 3)
+        sub_layout_h.addWidget(self.text_degree, 7)
+        layout_v1.addLayout(sub_layout_h)
+        layout_h.addLayout(layout_v1, 9)
+        layout_h.addLayout(layout_v2, 1)
         self.setLayout(layout_h)
 
     def slider_value_change(self, value):
