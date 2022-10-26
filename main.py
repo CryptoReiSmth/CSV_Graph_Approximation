@@ -2,7 +2,7 @@ import sys
 import csv
 import pyqtgraph as pg
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, QTableWidgetItem, QPushButton
 from PyQt5.QtCore import Qt
 import numpy as np
 
@@ -30,6 +30,7 @@ class CsvGraph (QDialog):
     def __init__(self, file_name: str):
         super(QDialog, self).__init__()
         self.setGeometry(100, 50, 1400, 950)
+
         # Create cool window
         self.graphWidget = pg.PlotWidget()
         self.graphWidget.setBackground('w')
@@ -39,7 +40,7 @@ class CsvGraph (QDialog):
         self.graphWidget.setLabel("bottom", "x", **styles)
         self.graphWidget.addLegend()
         self.graphWidget.showGrid(x=True, y=True)
-        self.setWindowTitle("CsvGraph")
+        self.setWindowTitle(file_name)
 
         # Graphic data
         self.y = []
@@ -80,7 +81,6 @@ class CsvGraph (QDialog):
         self.sld.valueChanged.connect(self.slider_value_change)
         self.degree_label = QLabel(f"Степень полинома: {self.degree}")
 
-
         # Add values table
         self.data_table = QTableWidget()
         self.data_table.setRowCount(len(self.x))
@@ -88,9 +88,13 @@ class CsvGraph (QDialog):
         self.data_table.setHorizontalHeaderLabels(["x", "y"])
         self.data_table.verticalHeader().setVisible(False)
         self.data_table.resizeColumnsToContents()
-        for i in range(len(self.x)):
+        for i in range(self.data_table.rowCount()):
             self.data_table.setItem(i, 0, QTableWidgetItem(str(self.x[i])))
             self.data_table.setItem(i, 1, QTableWidgetItem(str(self.y[i])))
+
+        # Add apply button
+        self.apply_button = QPushButton("Применить")
+        self.apply_button.clicked.connect(self.apply_table_changes)
 
         # Set layout
         layout_h = QHBoxLayout()
@@ -100,18 +104,19 @@ class CsvGraph (QDialog):
         sub_layout_h.setAlignment(Qt.AlignRight)
         layout_v1.addWidget(self.graphWidget)
         layout_v2.addWidget(self.data_table)
+        layout_v2.addWidget(self.apply_button)
         sub_layout_h.addWidget(self.sld, 2)
         sub_layout_h.addWidget(self.degree_label, 1)
         sub_layout_h.addWidget(self.equation_label, 7)
         layout_v1.addLayout(sub_layout_h)
-        layout_h.addLayout(layout_v1, 9)
+        layout_h.addLayout(layout_v1, 10)
         layout_h.addLayout(layout_v2, 1)
         self.setLayout(layout_h)
 
     def slider_value_change(self, value):
         self.degree = value
         self.degree_label.setText(f"Степень полинома: {self.degree}")
-        self.line_coefficients = np.polyfit(self.x, self.y, self.degree)
+        self.update_line_coefficients()
         self.update_approximate_line()
         self.update_approximate_line_equation()
 
@@ -124,16 +129,32 @@ class CsvGraph (QDialog):
         self.approximate_line_equation += '%.4f' % self.line_coefficients[0]
         self.equation_label.setText(self.approximate_line_equation)
 
-
     def update_approximate_line(self):
         self.approximate_y = np.polyval(self.line_coefficients, self.x)
         self.approximate_line.setData(self.x, self.approximate_y)
 
+    def update_drawn_points(self):
+        self.scatter.setData(self.x, self.y)
+
+    def update_line_coefficients(self):
+        self.line_coefficients = np.polyfit(self.x, self.y, self.degree)
+
+    def apply_table_changes(self):
+        #TODO: check entered type
+        for x_row in range(self.data_table.rowCount()):
+            self.x[x_row] = int(self.data_table.item(x_row, 0).text())
+        for y_row in range(self.data_table.rowCount()):
+            self.y[y_row] = int(self.data_table.item(y_row, 1).text())
+        self.update_line_coefficients()
+        self.update_drawn_points()
+        self.update_approximate_line()
+        self.update_approximate_line_equation()
 
 
 if __name__ == '__main__':
-    file_path = enter_correct_file_path()
+    #TODO: убрать коммент!!!!!!!
+    #file_path = enter_correct_file_path()
     app = QtWidgets.QApplication(sys.argv)
-    w = CsvGraph(file_path)
+    w = CsvGraph("check.csv")
     w.show()
     sys.exit(app.exec_())
