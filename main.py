@@ -10,8 +10,24 @@ def sign(n):
   if n < 0: return " "
   else: return " +"
 
+def enter_correct_file_path():
+    file_name = input("Введите полный путь .csv файла:\n")
+    if file_name[-4::] not in ".csv":
+        print("Введен неверный типа файл! Попробуйте еще раз.")
+        exit(1)
+    else:
+        try:
+            open(file_name, "r")
+        except (FileNotFoundError, IsADirectoryError):
+            print("Указанный файл не существует!")
+            exit(1)
+        else:
+            return file_name
+
+
+
 class CsvGraph (QDialog):
-    def __init__(self, file_path: str):
+    def __init__(self, file_name: str):
         super(QDialog, self).__init__()
         self.setGeometry(100, 50, 1400, 950)
         # Create cool window
@@ -31,7 +47,7 @@ class CsvGraph (QDialog):
         self.degree = 2
 
         # Read data from csv-file
-        with open(file_path, newline='') as csvfile:
+        with open(file_name, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             for row in reader:      #TODO: add header handling
                 self.x.append(int(row[0].split(";")[0]))
@@ -76,7 +92,6 @@ class CsvGraph (QDialog):
             self.data_table.setItem(i, 0, QTableWidgetItem(str(self.x[i])))
             self.data_table.setItem(i, 1, QTableWidgetItem(str(self.y[i])))
 
-
         # Set layout
         layout_h = QHBoxLayout()
         layout_v1 = QVBoxLayout()
@@ -117,7 +132,8 @@ class CsvGraph (QDialog):
 
 
 if __name__ == '__main__':
+    file_path = enter_correct_file_path()
     app = QtWidgets.QApplication(sys.argv)
-    w = CsvGraph("check.csv")
+    w = CsvGraph(file_path)
     w.show()
     sys.exit(app.exec_())
