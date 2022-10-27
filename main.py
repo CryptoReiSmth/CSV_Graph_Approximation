@@ -38,19 +38,19 @@ def error_dialog(name: str, text: str):
 
 
 class Window(QMainWindow):
-    def __init__(self, file_name: str):
+    def __init__(self, file_name = None):
         super(QMainWindow, self).__init__()
         self.current_file = file_name
         self.setWindowTitle(self.current_file)
         self.current_dir = str(getcwd())
-        self.resize(1400, 950)
+        self.resize(1400, 900)
         self.centerPoint = QDesktopWidget().availableGeometry().center()
         self.qr = self.frameGeometry()
         self.cp = QDesktopWidget().availableGeometry().center()
         self.qr.moveCenter(self.cp)
         self.move(self.qr.topLeft())
-        self.graph_dialog = CsvGraph(self.current_file)
-        self.setCentralWidget(self.graph_dialog)
+        #self.graph_dialog = CsvGraph(self.current_file)
+        #self.setCentralWidget(self.graph_dialog)
 
         #Add menu
         self.menuBar = QMenuBar()
@@ -283,8 +283,8 @@ class CsvGraph (QDialog):
 
 
 if __name__ == '__main__':
-    file_path = enter_correct_file_path()
+    #file_path = enter_correct_file_path()
     app = QApplication(sys.argv)
-    w = Window(file_path)
+    w = Window()
     w.show()
     sys.exit(app.exec_())
