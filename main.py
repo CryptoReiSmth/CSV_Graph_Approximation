@@ -1,13 +1,12 @@
 import sys
+from os import getcwd
 import csv
 import pyqtgraph as pg
-from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, \
                             QTableWidgetItem, QPushButton, QMenuBar, QMainWindow, QAction, QFileDialog, QDesktopWidget
 
 from PyQt5.QtCore import Qt
 import numpy as np
-from pathlib import Path
 
 def sign(n):
   if n < 0: return " "
@@ -28,9 +27,20 @@ def enter_correct_file_path():
             return file_name
 
 
+def error_dialog(name: str, text: str):
+    dialog = QDialog()
+    dialog.setWindowTitle(name)
+    label = QLabel(text)
+    layout = QHBoxLayout()
+    layout.addWidget(label)
+    dialog.setLayout(layout)
+    dialog.exec()
+
+
 class Window(QMainWindow):
     def __init__(self, file_name: str):
         super(QMainWindow, self).__init__()
+        self.current_dir = str(getcwd())
         self.resize(1400, 950)
         self.centerPoint = QDesktopWidget().availableGeometry().center()
         self.qr = self.frameGeometry()
@@ -72,19 +82,16 @@ class Window(QMainWindow):
 
 
     def open(self):
-        home_dir = str(Path.home())
-        open_file = QFileDialog.getOpenFileName(self, 'Open file', home_dir)
-        if open_file[0][-4::] not in ".csv":
-            dialog = QDialog()
-            dialog.move(self.qr.topLeft())
-            dialog.setWindowTitle("Неверный тип файла")
-            label = QLabel("Введен неверный типа файл! Попробуйте еще раз.")
-            layout = QHBoxLayout()
-            layout.addWidget(label)
-            dialog.setLayout(layout)
-            dialog.exec()
+        open_file, _ = QFileDialog.getOpenFileName(self, "Открыть", self.current_dir)
+        if open_file[-4::] not in ".csv":
+            error_dialog("Неверный тип файла", "Введен неверный типа файл! Попробуйте еще раз.")
         else:
-            dialog = CsvGraph(open_file[0])
+            try:
+                open(open_file, "r")
+            except FileNotFoundError:
+                error_dialog("Файл", "Указанный файл не существует!")
+            else:
+                dialog = CsvGraph(open_file)
 
     def save(self):
         pass
