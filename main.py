@@ -2,7 +2,9 @@ import sys
 import csv
 import pyqtgraph as pg
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QMenuBar, QMainWindow, QAction, QFileDialog
+from PyQt5.QtWidgets import QApplication, QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, \
+                            QTableWidgetItem, QPushButton, QMenuBar, QMainWindow, QAction, QFileDialog, QDesktopWidget
+
 from PyQt5.QtCore import Qt
 import numpy as np
 from pathlib import Path
@@ -29,7 +31,12 @@ def enter_correct_file_path():
 class Window(QMainWindow):
     def __init__(self, file_name: str):
         super(QMainWindow, self).__init__()
-        self.setGeometry(100, 50, 1400, 950)
+        self.resize(1400, 950)
+        self.centerPoint = QDesktopWidget().availableGeometry().center()
+        self.qr = self.frameGeometry()
+        self.cp = QDesktopWidget().availableGeometry().center()
+        self.qr.moveCenter(self.cp)
+        self.move(self.qr.topLeft())
         self.dialog = CsvGraph(file_name)
         self.setCentralWidget(self.dialog)
 
@@ -69,6 +76,7 @@ class Window(QMainWindow):
         open_file = QFileDialog.getOpenFileName(self, 'Open file', home_dir)
         if open_file[0][-4::] not in ".csv":
             dialog = QDialog()
+            dialog.move(self.qr.topLeft())
             dialog.setWindowTitle("Неверный тип файла")
             label = QLabel("Введен неверный типа файл! Попробуйте еще раз.")
             layout = QHBoxLayout()
@@ -85,7 +93,20 @@ class Window(QMainWindow):
         pass
 
     def help(self):
-        pass
+        dialog = QDialog()
+        dialog.resize(200, 200)
+        dialog.setWindowTitle("Справка")
+        label = QLabel("Программа получает исходные данные из файла .csv и строит по ним график.\n"
+                       "На графике отображаются значения точек, заданных в файле и кривая полиномиальной аппроксимации.\n"
+                       "Степень полинома для аппроксимирующей кривой можно изменить ползунком внизу экрана от 2 до 5.\n"
+                       "Кроме того, можно видеть уравнение построенной кривой. \n\n"
+                       "Данные из открытого файла отображаются в таблице в правой части окна.\n"
+                       "Значения можно свободно менять. Чтобы перерисовать график, необходимо нажать кнопку Применить.\n\n"
+                       "Новые данные, введенные в таблице приложения можно сохранить в исходный файл или создать новый (см. меню Файл)\n")
+        layout = QHBoxLayout()
+        layout.addWidget(label)
+        dialog.setLayout(layout)
+        dialog.exec()
 
     def exit(self):
         self.exec()
@@ -96,7 +117,6 @@ class Window(QMainWindow):
 class CsvGraph (QDialog):
     def __init__(self, file_name: str):
         super(QDialog, self).__init__()
-
 
         # Create cool window
         self.graphWidget = pg.PlotWidget()
