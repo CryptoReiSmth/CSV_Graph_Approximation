@@ -2,9 +2,10 @@ import sys
 import csv
 import pyqtgraph as pg
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, QTableWidgetItem, QPushButton
+from PyQt5.QtWidgets import QApplication, QDialog, QHBoxLayout, QVBoxLayout, QSlider, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QMenuBar, QMainWindow, QAction, QFileDialog
 from PyQt5.QtCore import Qt
 import numpy as np
+from pathlib import Path
 
 def sign(n):
   if n < 0: return " "
@@ -25,11 +26,66 @@ def enter_correct_file_path():
             return file_name
 
 
+class Window(QMainWindow):
+    def __init__(self, file_name: str):
+        super(QMainWindow, self).__init__()
+        self.setGeometry(100, 50, 1400, 950)
+        self.dialog = CsvGraph(file_name)
+        self.setCentralWidget(self.dialog)
+
+        #Add menu
+        self.menuBar = QMenuBar()
+        self.setMenuBar(self.menuBar)
+
+        self.file_menu = self.menuBar.addMenu("Файл")
+        self.help_menu = self.menuBar.addMenu("Справка")
+
+        # Create actions
+        self.open_action = QAction("Открыть")
+        self.save_action = QAction("Сохранить")
+        self.save_as_action = QAction("Сохранить как")
+        self.file_menu.addAction(self.open_action)
+        self.file_menu.addAction(self.save_action)
+        self.file_menu.addAction(self.save_as_action)
+
+        self.open_action.setShortcut("Ctrl+O")
+        self.save_action.setShortcut("Ctrl+S")
+        self.save_as_action.setShortcut("Ctrl+Shift+S")
+
+        self.exit_action = QAction("Выход")
+        self.help_action = QAction("О программе")
+        self.help_menu.addAction(self.help_action)
+        self.help_menu.addAction(self.exit_action)
+
+        self.open_action.triggered.connect(self.open)
+        self.save_action.triggered.connect(self.save)
+        self.save_as_action.triggered.connect(self.save_as)
+        self.exit_action.triggered.connect(self.exit)
+        self.help_action.triggered.connect(self.help)
+
+
+    def open(self):
+        pass
+
+    def save(self):
+        pass
+
+    def save_as(self):
+        pass
+
+    def help(self):
+        pass
+
+    def exit(self):
+        self.exec()
+
+
+
 
 class CsvGraph (QDialog):
     def __init__(self, file_name: str):
         super(QDialog, self).__init__()
-        self.setGeometry(100, 50, 1400, 950)
+
 
         # Create cool window
         self.graphWidget = pg.PlotWidget()
@@ -154,7 +210,7 @@ class CsvGraph (QDialog):
 if __name__ == '__main__':
     #TODO: убрать коммент!!!!!!!
     #file_path = enter_correct_file_path()
-    app = QtWidgets.QApplication(sys.argv)
-    w = CsvGraph("check.csv")
+    app = QApplication(sys.argv)
+    w = Window("check.csv")
     w.show()
     sys.exit(app.exec_())
