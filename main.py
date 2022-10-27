@@ -65,7 +65,18 @@ class Window(QMainWindow):
 
 
     def open(self):
-        pass
+        home_dir = str(Path.home())
+        open_file = QFileDialog.getOpenFileName(self, 'Open file', home_dir)
+        if open_file[0][-4::] not in ".csv":
+            dialog = QDialog()
+            dialog.setWindowTitle("Неверный тип файла")
+            label = QLabel("Введен неверный типа файл! Попробуйте еще раз.")
+            layout = QHBoxLayout()
+            layout.addWidget(label)
+            dialog.setLayout(layout)
+            dialog.exec()
+        else:
+            dialog = CsvGraph(open_file[0])
 
     def save(self):
         pass
