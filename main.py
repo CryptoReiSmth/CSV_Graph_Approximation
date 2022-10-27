@@ -252,8 +252,8 @@ class CsvGraph (QDialog):
         self.approximate_x = []
         new_points_num = len(self.x) * 10
         d = (max(self.x) - min(self.x)) / new_points_num
-        current_x = min(self.x) - 2
-        while current_x < max(self.x) + 2:
+        current_x = min(self.x) - 1
+        while current_x < max(self.x) + 1:
             current_x += d
             self.approximate_x.append(current_x)
         self.approximate_y = np.polyval(self.line_coefficients, self.approximate_x)
@@ -268,23 +268,23 @@ class CsvGraph (QDialog):
     def apply_table_changes(self):
         #TODO: check entered type
         for x_row in range(self.data_table.rowCount()):
-            self.x[x_row] = int(self.data_table.item(x_row, 0).text())
+            item = self.data_table.item(x_row, 0).text()
+            self.x[x_row] = int(item)
         for y_row in range(self.data_table.rowCount()):
-            self.y[y_row] = int(self.data_table.item(y_row, 1).text())
+            item = self.data_table.item(y_row, 1).text()
+            self.y[y_row] = int(item)
         self.update_line_coefficients()
         self.update_drawn_points()
         self.update_approximate_line()
         self.update_approximate_line_equation()
-
 
     def return_dots_values(self):
         return self.x, self.y
 
 
 if __name__ == '__main__':
-    #TODO: убрать коммент!!!!!!!
-    #file_path = enter_correct_file_path()
+    file_path = enter_correct_file_path()
     app = QApplication(sys.argv)
-    w = Window("check.csv")
+    w = Window(file_path)
     w.show()
     sys.exit(app.exec_())
