@@ -109,7 +109,7 @@ class Window(QMainWindow):
         dialog.exec()
 
     def exit(self):
-        self.exec()
+        self.close()
 
 
 
