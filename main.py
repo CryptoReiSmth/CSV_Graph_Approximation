@@ -139,7 +139,6 @@ class Window(QMainWindow):
 
 
 
-
 class CsvGraph (QDialog):
     def __init__(self, file_name: str):
         super(QDialog, self).__init__()
@@ -174,8 +173,15 @@ class CsvGraph (QDialog):
 
         # Draw approximate line
         self.line_coefficients = np.polyfit(self.x, self.y, self.degree)
-        self.approximate_y = np.polyval(self.line_coefficients, self.x)
-        self.approximate_line = self.graphWidget.plot(self.x, self.approximate_y, pen = pg.mkPen(color =  "red"), symbol='+', symbolSize=5, symbolBrush="red")
+        self.approximate_x = []
+        new_points_num = len(self.x) * 10
+        d = (max(self.x) - min(self.x)) / new_points_num
+        current_x = min(self.x) - 1
+        while current_x < max(self.x) + 1:
+            current_x += d
+            self.approximate_x.append(current_x)
+        self.approximate_y = np.polyval(self.line_coefficients, self.approximate_x)
+        self.approximate_line = self.graphWidget.plot(self.approximate_x, self.approximate_y, pen = pg.mkPen(color =  "red"), symbolSize=0, symbolBrush="red")
 
         # Show line equation
         self.approximate_line_equation = "    Уравнение линии аппроксимации:  "
@@ -243,8 +249,15 @@ class CsvGraph (QDialog):
         self.equation_label.setText(self.approximate_line_equation)
 
     def update_approximate_line(self):
-        self.approximate_y = np.polyval(self.line_coefficients, self.x)
-        self.approximate_line.setData(self.x, self.approximate_y)
+        self.approximate_x = []
+        new_points_num = len(self.x) * 10
+        d = (max(self.x) - min(self.x)) / new_points_num
+        current_x = min(self.x) - 2
+        while current_x < max(self.x) + 2:
+            current_x += d
+            self.approximate_x.append(current_x)
+        self.approximate_y = np.polyval(self.line_coefficients, self.approximate_x)
+        self.approximate_line.setData(self.approximate_x, self.approximate_y)
 
     def update_drawn_points(self):
         self.scatter.setData(self.x, self.y)
