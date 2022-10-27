@@ -40,6 +40,8 @@ def error_dialog(name: str, text: str):
 class Window(QMainWindow):
     def __init__(self, file_name: str):
         super(QMainWindow, self).__init__()
+        self.current_file = file_name
+        self.setWindowTitle(self.current_file)
         self.current_dir = str(getcwd())
         self.resize(1400, 950)
         self.centerPoint = QDesktopWidget().availableGeometry().center()
@@ -47,8 +49,8 @@ class Window(QMainWindow):
         self.cp = QDesktopWidget().availableGeometry().center()
         self.qr.moveCenter(self.cp)
         self.move(self.qr.topLeft())
-        self.dialog = CsvGraph(file_name)
-        self.setCentralWidget(self.dialog)
+        self.graph_dialog = CsvGraph(self.current_file)
+        self.setCentralWidget(self.graph_dialog)
 
         #Add menu
         self.menuBar = QMenuBar()
@@ -82,22 +84,39 @@ class Window(QMainWindow):
 
 
     def open(self):
-        open_file, _ = QFileDialog.getOpenFileName(self, "Открыть", self.current_dir)
-        if open_file[-4::] not in ".csv":
+        open_file_name, _ = QFileDialog.getOpenFileName(self, "Открыть", self.current_dir)
+        if open_file_name[-4::] not in ".csv":
             error_dialog("Неверный тип файла", "Введен неверный типа файл! Попробуйте еще раз.")
         else:
             try:
-                open(open_file, "r")
+                open(open_file_name, "r")
             except FileNotFoundError:
                 error_dialog("Файл", "Указанный файл не существует!")
             else:
-                dialog = CsvGraph(open_file)
+                self.current_file = open_file_name
+                self.setWindowTitle(self.current_file)
+                self.graph_dialog = CsvGraph(self.current_file)
+                self.setCentralWidget(self.graph_dialog)
 
     def save(self):
-        pass
+        save_file_name = self.current_file
+        x, y = self.graph_dialog.return_dots_values()
+        save_file = open(save_file_name, "w")
+        for i in range(len(x)):
+            save_file.write(f"{x[i]};{y[i]}\n")
+
 
     def save_as(self):
-        pass
+        save_file_name, _ = QFileDialog.getSaveFileName(self, "Сохранить как", self.current_dir)
+        if save_file_name[-4::] not in ".csv":
+            error_dialog("Неверный тип файла", "Введен неверный типа файл! Попробуйте еще раз.")
+        else:
+            self.current_file = save_file_name
+            x, y = self.graph_dialog.return_dots_values()
+            save_file = open(save_file_name, "w")
+            for i in range(len(x)):
+                save_file.write(f"{x[i]};{y[i]}\n")
+            self.setWindowTitle(self.current_file)
 
     def help(self):
         dialog = QDialog()
@@ -243,6 +262,10 @@ class CsvGraph (QDialog):
         self.update_drawn_points()
         self.update_approximate_line()
         self.update_approximate_line_equation()
+
+
+    def return_dots_values(self):
+        return self.x, self.y
 
 
 if __name__ == '__main__':
