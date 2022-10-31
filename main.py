@@ -50,8 +50,8 @@ class Window(QMainWindow):
         self.cp = QDesktopWidget().availableGeometry().center()
         self.qr.moveCenter(self.cp)
         self.move(self.qr.topLeft())
-        self.graph_dialog = CsvGraph(self.current_file)
-        self.setCentralWidget(self.graph_dialog)
+        #self.graph_dialog = CsvGraph(self.current_file)
+        #self.setCentralWidget(self.graph_dialog)
 
         #Add menu
         self.menuBar = QMenuBar()
@@ -188,7 +188,7 @@ class CsvGraph (QDialog):
         self.approximate_line_equation = "    Уравнение линии аппроксимации:  "
         for degree in range(len(self.line_coefficients) - 1):
             self.approximate_line_equation += '%.4f' % self.line_coefficients[degree]
-            self.approximate_line_equation += f" x^{len(self.line_coefficients) - degree}"
+            self.approximate_line_equation += f" x^{len(self.line_coefficients) - degree - 1}"
             self.approximate_line_equation += sign(float(self.line_coefficients[degree + 1]))
         self.approximate_line_equation += '%.4f' % self.line_coefficients[len(self.line_coefficients) - 1]
         self.equation_label = QLabel(self.approximate_line_equation)
@@ -242,11 +242,11 @@ class CsvGraph (QDialog):
 
     def update_approximate_line_equation(self):
         self.approximate_line_equation = "    Уравнение линии аппроксимации:  "
-        for degree in range(len(self.line_coefficients) - 1, 0, -1):
+        for degree in range(len(self.line_coefficients) - 1):
             self.approximate_line_equation += '%.4f' % self.line_coefficients[degree]
-            self.approximate_line_equation += f" x^{degree}"
-            self.approximate_line_equation += sign(float(self.line_coefficients[degree - 1]))
-        self.approximate_line_equation += '%.4f' % self.line_coefficients[0]
+            self.approximate_line_equation += f" x^{len(self.line_coefficients) - degree - 1}"
+            self.approximate_line_equation += sign(float(self.line_coefficients[degree + 1]))
+        self.approximate_line_equation += '%.4f' % self.line_coefficients[len(self.line_coefficients) - 1]
         self.equation_label.setText(self.approximate_line_equation)
 
     def update_approximate_line(self):
@@ -286,6 +286,6 @@ class CsvGraph (QDialog):
 if __name__ == '__main__':
     #file_path = enter_correct_file_path()
     app = QApplication(sys.argv)
-    w = Window("real_check.csv")
+    w = Window()
     w.show()
     sys.exit(app.exec_())
