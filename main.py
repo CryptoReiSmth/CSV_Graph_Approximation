@@ -40,6 +40,7 @@ def error_dialog(name: str, text: str):
 class Window(QMainWindow):
     def __init__(self, file_name = None):
         super(QMainWindow, self).__init__()
+        self.graph_dialog = None
         self.current_file = file_name
         self.setWindowTitle(self.current_file)
         self.current_dir = str(getcwd())
@@ -163,8 +164,8 @@ class CsvGraph (QDialog):
         with open(file_name, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             for row in reader:      #TODO: add header handling
-                self.x.append(int(row[0].split(";")[0]))
-                self.y.append(int(row[0].split(";")[1]))
+                self.x.append(float(row[0].split(";")[0].replace(",", ".")))
+                self.y.append(float(row[0].split(";")[1].replace(",", ".")))
 
         # Add points from csv-file
         self.scatter = pg.ScatterPlotItem(size=7, brush=pg.mkBrush(color="blue"))
